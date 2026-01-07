@@ -152,7 +152,7 @@ export function Auth() {
               className="text-center text-muted mt-3 mb-0"
               style={{ fontSize: 13 }}
             >
-              Tip: Use a valid email and a 8+ character password.
+              Tip: Use a valid email and a 8+ character password.g
             </p>
           </form>
         </div>
