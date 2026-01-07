@@ -15,6 +15,8 @@ export function authErrorMessage(code?: string) {
       return "That email is already linked to a different sign-in method.";
     case "auth/too-many-requests":
       return "Too many attempts. Please wait and try again.";
+    case "auth/unauthorized-domain":
+      return "You have to be on localhost:5173";
     default:
       return "Login failed. Please try again.";
   }

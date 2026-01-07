@@ -54,12 +54,8 @@ export function Auth() {
       const p = provider === "google" ? googleProvider : githubProvider;
 
       await signInWithPopup(auth, p);
-    } catch (err: any) {
-      const code = err?.code || "";
-      const msg = err?.message || "";
-
-      // show something useful on screen
-      setFormError(`${code || "auth/error"}: ${msg}`);
+    } catch (error: any) {
+      setFormError(authErrorMessage(error?.code));
     } finally {
       setLoading(false);
     }
