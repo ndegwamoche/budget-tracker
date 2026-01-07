@@ -1,6 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { auth } from "../config/firebase-config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  auth,
+  googleProvider,
+  githubProvider,
+} from "../config/firebase-config";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { authErrorMessage } from "../utils/authErrors";
 
 export function Auth() {
   const [email, setEmail] = useState("");
@@ -34,25 +39,27 @@ export function Auth() {
 
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-
-      alert("✅ Form looks good (async handled).");
     } catch (error: any) {
-      const code = error?.code as string | undefined;
+      setFormError(authErrorMessage(error?.code));
+    } finally {
+      setLoading(false);
+    }
+  }
 
-      if (code === "auth/invalid-email") {
-        setFormError("Please enter a valid email address.");
-      } else if (code === "auth/user-not-found") {
-        setFormError("No account found with that email.");
-      } else if (
-        code === "auth/wrong-password" ||
-        code === "auth/invalid-credential"
-      ) {
-        setFormError("Invalid email or password.");
-      } else if (code === "auth/too-many-requests") {
-        setFormError("Too many attempts. Please wait a bit and try again.");
-      } else {
-        setFormError("Login failed. Please try again.");
-      }
+  async function handleProvider(provider: "google" | "github") {
+    setFormError(null);
+    setLoading(true);
+
+    try {
+      const p = provider === "google" ? googleProvider : githubProvider;
+
+      await signInWithPopup(auth, p);
+    } catch (err: any) {
+      const code = err?.code || "";
+      const msg = err?.message || "";
+
+      // show something useful on screen
+      setFormError(`${code || "auth/error"}: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -66,6 +73,7 @@ export function Auth() {
           <p className="text-center text-muted mb-4">Sign in to continue</p>
 
           <form onSubmit={handleSubmit} noValidate>
+            {/* Form Error */}
             {formError && (
               <div className="alert alert-danger" role="alert">
                 {formError}
@@ -126,12 +134,13 @@ export function Auth() {
               <div className="flex-grow-1 border-top" />
             </div>
 
-            {/* Social buttons (no auth logic yet) */}
+            {/* Signin Options Buttons */}
             <div className="d-grid gap-2 mt-3">
               <button
                 type="button"
                 className="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2"
-                onClick={() => alert("Google login not wired yet")}
+                onClick={() => handleProvider("google")}
+                disabled={loading}
               >
                 <i className="bi bi-google" />
                 Continue with Google
@@ -140,20 +149,13 @@ export function Auth() {
               <button
                 type="button"
                 className="btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
-                onClick={() => alert("GitHub login not wired yet")}
+                onClick={() => handleProvider("github")}
+                disabled={loading}
               >
                 <i className="bi bi-github" />
                 Continue with GitHub
               </button>
             </div>
-
-            {/* Helper text */}
-            <p
-              className="text-center text-muted mt-3 mb-0"
-              style={{ fontSize: 13 }}
-            >
-              Tip: Use a valid email and a 8+ character password.g
-            </p>
           </form>
         </div>
       </div>
