@@ -65,7 +65,10 @@ export function Auth() {
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow-sm" style={{ width: "390px" }}>
         <div className="card-body p-4">
-          <h4 className="text-center mb-1">Budget Tracker</h4>
+          <h4 className="text-center mb-1">
+            <i className="bi bi-calculator-fill"></i>
+            Budget Tracker
+          </h4>
           <p className="text-center text-muted mb-4">Sign in to continue</p>
 
           <form onSubmit={handleSubmit} noValidate>

@@ -63,8 +63,11 @@ const AppLayout = ({ user }: { user: User }) => {
             >
               <i className="bi bi-list" />
             </button>
-
-            <span className="navbar-brand mb-0 h1">Budget Tracker</span>
+ 
+            <span className="navbar-brand mb-0 h1">
+              <i className="bi bi-calculator-fill"></i>
+              Budget Tracker
+            </span>
           </div>
 
           <div className="d-flex align-items-center gap-3">
@@ -92,9 +95,10 @@ const AppLayout = ({ user }: { user: User }) => {
             </span>
 
             <button
-              className="btn btn-outline-danger btn-sm"
+              className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-1"
               onClick={handleLogout}
             >
+              <i className="bi bi-lock-fill"></i>
               Logout
             </button>
           </div>
