@@ -7,7 +7,7 @@ import { auth } from "./config/firebase-config";
 import { Auth } from "./components/Auth";
 import AppLayout from "./components/AppLayout";
 import { Dashboard } from "./components/Dashboard";
-// import { Expenses } from "./components/Expenses";
+import { Expenses } from "./components/Expenses";
 // import { Reports } from "./components/Reports";
 // import { Categories } from "./components/Categories";
 // import { Recurring } from "./components/Recurring";
@@ -36,25 +36,23 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* HOME = LOGIN */}
+        {/* LOGIN */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Auth />}
         />
 
-        {/* PROTECTED AREA (Layout + nested pages) */}
+        {/* APP LAYOUT (NO PATH) */}
         <Route
-          path="/dashboard"
           element={
             user ? <AppLayout user={user} /> : <Navigate to="/" replace />
           }
         >
-          <Route index element={<Dashboard />} />
-          {/* <Route path="expenses" element={<Expenses />} />
-          <Route path="recurring" element={<Recurring />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="settings" element={<Settings />} /> */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/expenses" element={<Expenses />} />
+          {/* later */}
+          {/* <Route path="/reports" element={<Reports />} /> */}
+          {/* <Route path="/categories" element={<Categories />} /> */}
         </Route>
 
         {/* fallback */}

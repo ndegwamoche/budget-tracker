@@ -20,27 +20,27 @@ const AppLayout = ({ user }: { user: User }) => {
         Dashboard
       </NavLink>
 
-      <NavLink to="/dashboard/expenses" className={linkClass}>
+      <NavLink to="/expenses" className={linkClass}>
         <i className="bi bi-receipt" />
         Expenses
       </NavLink>
 
-      <NavLink to="/dashboard/recurring" className={linkClass}>
+      <NavLink to="/recurring" className={linkClass}>
         <i className="bi bi-arrow-repeat" />
         Recurring
       </NavLink>
 
-      <NavLink to="/dashboard/reports" className={linkClass}>
+      <NavLink to="/reports" className={linkClass}>
         <i className="bi bi-bar-chart" />
         Reports
       </NavLink>
 
-      <NavLink to="/dashboard/categories" className={linkClass}>
+      <NavLink to="/categories" className={linkClass}>
         <i className="bi bi-tags" />
         Categories
       </NavLink>
 
-      <NavLink to="/dashboard/settings" className={linkClass}>
+      <NavLink to="/settings" className={linkClass}>
         <i className="bi bi-gear" />
         Settings
       </NavLink>
@@ -64,8 +64,8 @@ const AppLayout = ({ user }: { user: User }) => {
               <i className="bi bi-list" />
             </button>
  
-            <span className="navbar-brand mb-0 h1">
-              <i className="bi bi-calculator-fill"></i>
+            <span className="navbar-brand mb-0 h1 d-flex align-items-center justify-content-center gap-1">
+              <i className="bi bi-plus-slash-minus"></i>
               Budget Tracker
             </span>
           </div>
@@ -99,7 +99,7 @@ const AppLayout = ({ user }: { user: User }) => {
               onClick={handleLogout}
             >
               <i className="bi bi-lock-fill"></i>
-              Logout
+              <span className="d-none d-sm-inline">Logout</span>
             </button>
           </div>
         </div>
