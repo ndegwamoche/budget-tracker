@@ -1,13 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Auth } from "./components/Auth";
-import { Dashboard } from "./components/Dashboard";
-import { AppLayout } from "./components/AppLayout";
-import { auth } from "./config/firebase-config";
-import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import type { User } from "firebase/auth";
+
+import { auth } from "./config/firebase-config";
+import { Auth } from "./components/Auth";
+import AppLayout from "./components/AppLayout";
+import { Dashboard } from "./components/Dashboard";
+// import { Expenses } from "./components/Expenses";
+// import { Reports } from "./components/Reports";
+// import { Categories } from "./components/Categories";
+// import { Recurring } from "./components/Recurring";
+// import { Settings } from "./components/Settings";
 
 export default function App() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -19,7 +26,11 @@ export default function App() {
   }, []);
 
   if (checkingAuth) {
-    return <div className="text-center mt-5">Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border" role="status" aria-label="Loading" />
+      </div>
+    );
   }
 
   return (
@@ -31,14 +42,23 @@ export default function App() {
           element={user ? <Navigate to="/dashboard" replace /> : <Auth />}
         />
 
-        {/* PROTECTED APP AREA */}
+        {/* PROTECTED AREA (Layout + nested pages) */}
         <Route
           path="/dashboard"
-          element={user ? <AppLayout /> : <Navigate to="/" replace />}
+          element={
+            user ? <AppLayout user={user} /> : <Navigate to="/" replace />
+          }
         >
           <Route index element={<Dashboard />} />
-          {/* later: <Route path="expenses" element={<Expenses />} /> */}
+          {/* <Route path="expenses" element={<Expenses />} />
+          <Route path="recurring" element={<Recurring />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="settings" element={<Settings />} /> */}
         </Route>
+
+        {/* fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
