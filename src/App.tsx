@@ -9,8 +9,7 @@ import AppLayout from "./components/AppLayout";
 import { Dashboard } from "./components/Dashboard";
 import { Expenses } from "./components/Expenses";
 // import { Reports } from "./components/Reports";
-// import { Categories } from "./components/Categories";
-// import { Recurring } from "./components/Recurring";
+import { Categories } from "./components/Categories";
 // import { Settings } from "./components/Settings";
 
 export default function App() {
@@ -50,9 +49,9 @@ export default function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
+          <Route path="/categories" element={<Categories />} />
           {/* later */}
           {/* <Route path="/reports" element={<Reports />} /> */}
-          {/* <Route path="/categories" element={<Categories />} /> */}
         </Route>
 
         {/* fallback */}

@@ -6,6 +6,7 @@ import {
 } from "../config/firebase-config";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { authErrorMessage } from "../utils/authErrors";
+import { ensureUncategorized } from "../utils/dbHelpers";
 
 export function Auth() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,12 @@ export function Auth() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+      await ensureUncategorized(cred.user.uid);
     } catch (error: any) {
       setFormError(authErrorMessage(error?.code));
     } finally {
@@ -53,7 +59,8 @@ export function Auth() {
     try {
       const p = provider === "google" ? googleProvider : githubProvider;
 
-      await signInWithPopup(auth, p);
+      const cred = await signInWithPopup(auth, p);
+      await ensureUncategorized(cred.user.uid);
     } catch (error: any) {
       setFormError(authErrorMessage(error?.code));
     } finally {
@@ -65,11 +72,9 @@ export function Auth() {
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow-sm" style={{ width: "390px" }}>
         <div className="card-body p-4">
-          <h4 className="text-center mb-1 d-flex align-items-center justify-content-center gap-1">
+          <h4 className="text-center mb-1 d-flex align-items-center justify-content-center gap-1 app-logo">
             <i className="bi bi-plus-slash-minus"></i>
-            Budget Tracker
           </h4>
-          <p className="text-center text-muted mb-4">Sign in to continue</p>
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Form Error */}

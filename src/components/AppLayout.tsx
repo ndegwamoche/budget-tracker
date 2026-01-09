@@ -1,11 +1,29 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../config/firebase-config";
 
+const links = [
+  { to: "/dashboard", label: "Dashboard", icon: "bi-speedometer2", end: true },
+  { to: "/expenses", label: "Expenses", icon: "bi-receipt" },
+  { to: "/categories", label: "Categories", icon: "bi-tags" },
+  { to: "/reports", label: "Reports", icon: "bi-bar-chart" },
+  { to: "/settings", label: "Settings", icon: "bi-gear" },
+] as const;
+
 const AppLayout = ({ user }: { user: User }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  // Close mobile menu whenever route changes (works for link clicks + programmatic nav)
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     await signOut(auth);
+    setMobileOpen(false);
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -15,118 +33,120 @@ const AppLayout = ({ user }: { user: User }) => {
 
   const SidebarLinks = () => (
     <div className="list-group">
-      <NavLink to="/dashboard" end className={linkClass}>
-        <i className="bi bi-speedometer2" />
-        Dashboard
-      </NavLink>
-
-      <NavLink to="/expenses" className={linkClass}>
-        <i className="bi bi-receipt" />
-        Expenses
-      </NavLink>
-
-      <NavLink to="/recurring" className={linkClass}>
-        <i className="bi bi-arrow-repeat" />
-        Recurring
-      </NavLink>
-
-      <NavLink to="/reports" className={linkClass}>
-        <i className="bi bi-bar-chart" />
-        Reports
-      </NavLink>
-
-      <NavLink to="/categories" className={linkClass}>
-        <i className="bi bi-tags" />
-        Categories
-      </NavLink>
-
-      <NavLink to="/settings" className={linkClass}>
-        <i className="bi bi-gear" />
-        Settings
-      </NavLink>
+      {links.map((l) => (
+        <NavLink
+          key={l.to}
+          to={l.to}
+          end={(l as any).end}
+          className={linkClass}
+        >
+          <i className={`bi ${l.icon}`} />
+          {l.label}
+        </NavLink>
+      ))}
     </div>
   );
 
   return (
     <>
       {/* Top Navbar */}
-      <nav className="navbar navbar-light bg-light border-bottom">
-        <div className="container-fluid d-flex justify-content-between align-items-center px-3">
-          <div className="d-flex align-items-center gap-2">
-            {/* Mobile menu button */}
-            <button
-              className="btn btn-outline-secondary d-md-none"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#mobileSidebar"
-              aria-controls="mobileSidebar"
-            >
-              <i className="bi bi-list" />
-            </button>
- 
-            <span className="navbar-brand mb-0 h1 d-flex align-items-center justify-content-center gap-1">
-              <i className="bi bi-plus-slash-minus"></i>
-              Budget Tracker
-            </span>
+      <nav className="navbar navbar-light bg-light border-bottom py-0">
+        <div className="container-fluid px-3 position-relative">
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <div className="d-flex align-items-center gap-2">
+              {/* Mobile menu toggle */}
+              <button
+                className="btn btn-outline-secondary d-md-none"
+                type="button"
+                aria-expanded={mobileOpen}
+                aria-controls="mobileMenu"
+                onClick={() => setMobileOpen((v) => !v)}
+              >
+                <i className="bi bi-list" />
+              </button>
+
+              <span className="navbar-brand mb-0 h1 d-flex align-items-center gap-1 app-logo">
+                <i className="bi bi-plus-slash-minus" />
+              </span>
+            </div>
+
+            <div className="d-flex align-items-center gap-3">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt="User avatar"
+                  width={32}
+                  height={32}
+                  className="rounded-circle"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div
+                  className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                  style={{ width: 32, height: 32, fontSize: 14 }}
+                >
+                  {(user.email ?? "?").charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              <span className="small text-muted d-none d-sm-inline">
+                {user.displayName || user.email}
+              </span>
+
+              <button
+                className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-1"
+                onClick={handleLogout}
+              >
+                <i className="bi bi-lock-fill" />
+                <span className="d-none d-sm-inline">Logout</span>
+              </button>
+            </div>
           </div>
 
-          <div className="d-flex align-items-center gap-3">
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt="User avatar"
-                width={32}
-                height={32}
-                className="rounded-circle"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div
-                className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                style={{ width: 32, height: 32, fontSize: 14 }}
-              >
-                {(user.email ?? "?").charAt(0).toUpperCase()}
+          {/* Mobile menu (pure React, no offcanvas) */}
+          <div
+            id="mobileMenu"
+            className={`d-md-none ${
+              mobileOpen ? "d-block" : "d-none"
+            } position-absolute start-0 end-0`}
+            style={{ top: "100%", zIndex: 1050 }}
+          >
+            <div className="mt-3 mb-2">
+              <div className="card shadow-sm">
+                <div className="card-body p-2">
+                  {/* Make links bigger and tap-friendly */}
+                  <div className="list-group">
+                    {links.map((l) => (
+                      <NavLink
+                        key={l.to}
+                        to={l.to}
+                        end={(l as any).end}
+                        className={({ isActive }) =>
+                          `list-group-item list-group-item-action d-flex align-items-center gap-2 ${
+                            isActive ? "active" : ""
+                          }`
+                        }
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <i className={`bi ${l.icon}`} />
+                        {l.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
 
-            {/* Hide name on very small screens */}
-            <span className="small text-muted d-none d-sm-inline">
-              {user.displayName || user.email}
-            </span>
-
-            <button
-              className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-1"
-              onClick={handleLogout}
-            >
-              <i className="bi bi-lock-fill"></i>
-              <span className="d-none d-sm-inline">Logout</span>
-            </button>
+              {/* Optional: tap outside to close (simple button) */}
+              <button
+                className="btn btn-light w-100 mt-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                Close menu
+              </button>
+            </div>
           </div>
         </div>
       </nav>
-
-      {/* Mobile Offcanvas Sidebar */}
-      <div
-        className="offcanvas offcanvas-start d-md-none"
-        tabIndex={-1}
-        id="mobileSidebar"
-        aria-labelledby="mobileSidebarLabel"
-      >
-        <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="mobileSidebarLabel">
-            Menu
-          </h5>
-          <button
-            type="button"
-            className="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          />
-        </div>
-        <div className="offcanvas-body">
-          <SidebarLinks />
-        </div>
-      </div>
 
       {/* Desktop layout */}
       <div className="container-fluid">
@@ -137,7 +157,9 @@ const AppLayout = ({ user }: { user: User }) => {
             style={{ minHeight: "calc(100vh - 56px)" }}
           >
             <div className="p-3">
-              <SidebarLinks />
+              <div className="card shadow-sm">
+                <SidebarLinks />
+              </div>
             </div>
           </aside>
 

@@ -1,0 +1,42 @@
+/* Add this to your global CSS or a styled component */
+
+.app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  transition: transform 0.3s ease;
+}
+
+.app-logo:hover {
+  transform: scale(1.05);
+}
+
+.app-logo i {
+  font-size: 38px;
+  background: linear-gradient(
+    135deg,
+    #6366f1 0%,
+    #8b5cf6 50%,
+    #ec4899 100%
+  ); /* Modern purple-pink gradient */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3)); /* Soft glow */
+  transition: all 0.4s ease;
+}
+
+.app-logo:hover i {
+  transform: rotate(360deg); /* Fun subtle spin on hover */
+  filter: drop-shadow(0 6px 12px rgba(99, 102, 241, 0.4));
+}
+
+.app-name {
+  font-size: 28px;
+  background: linear-gradient(135deg, #4c1d95, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
