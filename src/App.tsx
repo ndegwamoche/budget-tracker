@@ -8,9 +8,9 @@ import { Auth } from "./components/Auth";
 import AppLayout from "./components/AppLayout";
 import { Dashboard } from "./components/Dashboard";
 import { Expenses } from "./components/Expenses";
-// import { Reports } from "./components/Reports";
+import { Reports } from "./components/Reports";
 import { Categories } from "./components/Categories";
-// import { Settings } from "./components/Settings";
+import { Settings } from "./components/Settings";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -50,8 +50,8 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/categories" element={<Categories />} />
-          {/* later */}
-          {/* <Route path="/reports" element={<Reports />} /> */}
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         {/* fallback */}

@@ -42,11 +42,11 @@ type FormState = {
   date: string; // yyyy-mm-dd
 };
 
-const defaultForm: FormState = {
+// default form should NOT contain a date (date depends on selected month)
+const defaultForm: Omit<FormState, "date"> = {
   amount: "",
   categoryId: "",
   note: "",
-  date: new Date().toISOString().slice(0, 10),
 };
 
 function toDateInputValue(ts?: Timestamp) {
@@ -67,6 +67,20 @@ function monthLabel(d: Date) {
   return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 }
 
+function lastDayOfMonth(d: Date) {
+  // day 0 of next month = last day of current month
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+
+function toYMD(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+function formDateForSelectedMonth(month: Date) {
+  // you said: last day of the month is OK
+  return toYMD(lastDayOfMonth(month));
+}
+
 export function Expenses() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
 
@@ -81,7 +95,12 @@ export function Expenses() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [catLoading, setCatLoading] = useState(true);
 
-  const [form, setForm] = useState<FormState>(defaultForm);
+  // IMPORTANT: initialize form date based on selected month, not "today"
+  const [form, setForm] = useState<FormState>(() => ({
+    ...defaultForm,
+    date: formDateForSelectedMonth(new Date()),
+  }));
+
   const [touched, setTouched] = useState<{
     amount: boolean;
     categoryId: boolean;
@@ -160,6 +179,15 @@ export function Expenses() {
     return unsub;
   }, [user?.uid]);
 
+  // ✅ when month changes, update the add-form date (but don't touch edit mode)
+  useEffect(() => {
+    if (editingId) return;
+
+    const nextDate = formDateForSelectedMonth(month);
+    setForm((f) => ({ ...f, date: nextDate }));
+    setTouched((t) => ({ ...t, date: false }));
+  }, [month, editingId]);
+
   // --- subscribe: expenses for selected month ---
   useEffect(() => {
     if (!user) {
@@ -214,10 +242,13 @@ export function Expenses() {
 
   // --- helpers ---
   function resetForm() {
+    // ✅ reset using selected month (NOT today)
     setForm((f) => ({
       ...defaultForm,
-      categoryId: f.categoryId || (categories[0]?.id ?? ""),
+      categoryId: f.categoryId || categories[0]?.id || "",
+      date: formDateForSelectedMonth(month),
     }));
+
     setTouched({ amount: false, categoryId: false, date: false });
     setEditingId(null);
     setPageError(null);
@@ -238,6 +269,22 @@ export function Expenses() {
 
   function formatKES(n: number) {
     return (n || 0).toLocaleString();
+  }
+
+  function addOneMonthSafe(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // next month
+    const day = date.getDate();
+
+    // try same day next month
+    const candidate = new Date(year, month, day);
+
+    // if overflowed (e.g. Jan 31 → Mar 2), clamp to last day
+    if (candidate.getMonth() !== month) {
+      return new Date(year, month + 1, 0);
+    }
+
+    return candidate;
   }
 
   const categoryNameById = useMemo(() => {
@@ -295,7 +342,7 @@ export function Expenses() {
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc3545", // bootstrap danger
+      confirmButtonColor: "#dc3545",
       cancelButtonColor: "#6c757d",
       confirmButtonText: "Delete",
       cancelButtonText: "Cancel",
@@ -306,6 +353,7 @@ export function Expenses() {
     if (!result.isConfirmed) return;
 
     try {
+      setDeletingId(id);
       await deleteDoc(doc(db, "expenses", id));
 
       Swal.fire({
@@ -321,6 +369,60 @@ export function Expenses() {
         icon: "error",
         title: "Error",
         text: "Failed to delete expense.",
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleReplicateNextMonth(exp: Expense) {
+    if (!user) return;
+
+    const result = await Swal.fire({
+      title: "Replicate expense?",
+      html: `
+      <div class="text-start">
+        <div><strong>Amount:</strong> ${formatKES(exp.amount)}</div>
+        <div><strong>Next month:</strong> same category & note</div>
+      </div>
+    `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Replicate",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#0d6efd",
+      focusCancel: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const originalDate = exp.date.toDate();
+      const nextDate = addOneMonthSafe(originalDate);
+
+      await addDoc(collection(db, "expenses"), {
+        userId: user.uid,
+        amount: exp.amount,
+        categoryId: exp.categoryId,
+        note: exp.note ?? "",
+        date: Timestamp.fromDate(nextDate),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Replicated",
+        text: "Expense copied to next month.",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to replicate expense.",
       });
     }
   }
@@ -348,7 +450,7 @@ export function Expenses() {
         </div>
       </div>
 
-      {/* Month switcher (mobile friendly) */}
+      {/* Month switcher */}
       <div className="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mb-4">
         <div className="d-flex align-items-center justify-content-between gap-2">
           <button
@@ -380,11 +482,7 @@ export function Expenses() {
         </button>
       </div>
 
-      {pageError && (
-        <div className="alert alert-danger" role="alert">
-          {pageError}
-        </div>
-      )}
+      {pageError && <div className="alert alert-danger">{pageError}</div>}
 
       {/* Form */}
       <div className="card shadow-sm mb-4">
@@ -585,17 +683,26 @@ export function Expenses() {
                             <button
                               className="btn btn-outline-primary"
                               onClick={() => startEdit(x)}
-                              title="Edit"
                               aria-label="Edit"
+                              title="Edit"
                             >
                               <i className="bi bi-pencil-square" />
                             </button>
+
+                            <button
+                              className="btn btn-outline-secondary"
+                              onClick={() => handleReplicateNextMonth(x)}
+                              title="Replicate next month"
+                            >
+                              <i className="bi bi-arrow-repeat" />
+                            </button>
+
                             <button
                               className="btn btn-outline-danger"
                               onClick={() => handleDelete(x.id)}
                               disabled={deletingId === x.id}
-                              title="Delete"
                               aria-label="Delete"
+                              title="Delete"
                             >
                               {deletingId === x.id ? (
                                 <span className="spinner-border spinner-border-sm" />
@@ -656,6 +763,15 @@ export function Expenses() {
                               >
                                 <i className="bi bi-pencil-square" />
                               </button>
+
+                              <button
+                                className="btn btn-outline-secondary"
+                                onClick={() => handleReplicateNextMonth(x)}
+                                title="Replicate next month"
+                              >
+                                <i className="bi bi-arrow-90deg-right"></i>
+                              </button>
+
                               <button
                                 className="btn btn-outline-danger"
                                 onClick={() => handleDelete(x.id)}
