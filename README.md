@@ -113,31 +113,41 @@ Example:
 
 ---
 
-## 🔐 Authentication Flow
+## 🗄️ Firestore Data Model
 
-1. User opens the app
-2. Firebase checks authentication state using `onAuthStateChanged`
-3. If not logged in → user is redirected to `/`
-4. If logged in → user is redirected to the protected app area
-5. Logout clears the session and redirects back to login
+### Collection: `expenses`
 
-This ensures **secure route protection** at all times.
+Each document represents a single expense.
 
----
+| Field         | Type      | Description                      |
+| ------------- | --------- | -------------------------------- |
+| `userId`      | string    | Firebase Authentication user UID |
+| `amount`      | number    | Expense amount                   |
+| `categoryId`  | string    | Category name or identifier      |
+| `note`        | string    | Optional description             |
+| `date`        | timestamp | Date of the expense              |
+| `isRecurring` | boolean   | Whether the expense is recurring |
+| `frequency`   | string    | Recurrence rule (future use)     |
+| `active`      | boolean   | Indicates if expense is active   |
+| `createdAt`   | timestamp | Creation timestamp               |
+| `updatedAt`   | timestamp | Last update timestamp            |
 
-## 🧭 Routing Strategy
+## 🔐 Firestore Security Rules (Recommended)
 
-- `/` → Login page
-- `/dashboard` → Dashboard home
-- `/expenses` → Expenses list
-- All protected routes are wrapped in `AppLayout`
-- `<Outlet />` is used to render nested routes inside the layout
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-Example:
-
-```tsx
-<Route path="/dashboard" element={<AppLayout user={user} />}>
-  <Route index element={<Dashboard />} />
-  <Route path="expenses" element={<Expenses />} />
-</Route>
+    match /expenses/{docId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+    }
+  }
+}
 ```
+
+These rules ensure:
+
+Only authenticated users can access data
+Users can only read/write their own expenses
