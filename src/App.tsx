@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
@@ -33,15 +33,13 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
-        {/* LOGIN */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Auth />}
         />
 
-        {/* APP LAYOUT (NO PATH) */}
         <Route
           element={
             user ? <AppLayout user={user} /> : <Navigate to="/" replace />
@@ -54,9 +52,8 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
