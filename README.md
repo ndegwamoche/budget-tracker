@@ -63,6 +63,7 @@ This project is designed to be **simple, scalable, and beginner-friendly**, whil
 
 ## 📁 Project Structure
 
+<pre>
 src/
 │
 ├── components/
@@ -77,3 +78,66 @@ src/
 ├── App.tsx # Routing & auth guard
 ├── main.tsx # App entry point
 └── index.css # Global styles
+</pre>
+
+---
+
+## 🔐 Authentication Flow
+
+1. User opens the app
+2. Firebase checks authentication state using `onAuthStateChanged`
+3. If not logged in → user is redirected to `/`
+4. If logged in → user is redirected to the protected app area
+5. Logout clears the session and redirects back to login
+
+This ensures **secure route protection** at all times.
+
+---
+
+## 🧭 Routing Strategy
+
+- `/` → Login page
+- `/dashboard` → Dashboard home
+- `/expenses` → Expenses list
+- All protected routes are wrapped in `AppLayout`
+- `<Outlet />` is used to render nested routes inside the layout
+
+Example:
+
+```tsx
+<Route path="/dashboard" element={<AppLayout user={user} />}>
+  <Route index element={<Dashboard />} />
+  <Route path="expenses" element={<Expenses />} />
+</Route>
+```
+
+---
+
+## 🔐 Authentication Flow
+
+1. User opens the app
+2. Firebase checks authentication state using `onAuthStateChanged`
+3. If not logged in → user is redirected to `/`
+4. If logged in → user is redirected to the protected app area
+5. Logout clears the session and redirects back to login
+
+This ensures **secure route protection** at all times.
+
+---
+
+## 🧭 Routing Strategy
+
+- `/` → Login page
+- `/dashboard` → Dashboard home
+- `/expenses` → Expenses list
+- All protected routes are wrapped in `AppLayout`
+- `<Outlet />` is used to render nested routes inside the layout
+
+Example:
+
+```tsx
+<Route path="/dashboard" element={<AppLayout user={user} />}>
+  <Route index element={<Dashboard />} />
+  <Route path="expenses" element={<Expenses />} />
+</Route>
+```
