@@ -1,75 +1,79 @@
-# React + TypeScript + Vite
+# SpendWise – Expense Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SpendWise is a modern **expense tracking web application** built with **React, TypeScript, Firebase Authentication, and Cloud Firestore**.  
+It helps users securely track their daily expenses, view spending history, and prepare for future budgeting features.
 
-Currently, two official plugins are available:
+This project is designed to be **simple, scalable, and beginner-friendly**, while still following best practices used in production applications.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Authentication
 
-Note: This will impact Vite dev & build performances.
+- Email & password login
+- Google sign-in
+- GitHub sign-in
+- Secure authentication using Firebase Auth
+- Automatic session persistence
+- Protected routes (only logged-in users can access the app)
 
-## Expanding the ESLint configuration
+### Expenses
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- View a list of expenses stored in Cloud Firestore
+- Expenses are user-specific (each user only sees their own data)
+- Fields supported:
+  - Amount
+  - Category
+  - Note
+  - Date
+  - Created / updated timestamps
+- Real-time updates (when using `onSnapshot`)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### UI & Layout
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Responsive design (desktop & mobile)
+- Top navigation bar with:
+  - App logo
+  - Logged-in user avatar / email
+  - Logout button
+- Sidebar navigation (desktop)
+- Off-canvas sidebar (mobile)
+- Built entirely with **Bootstrap 5**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠️ Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Frontend
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- React (Vite)
+- TypeScript
+- React Router v6
+- Bootstrap 5
+- Bootstrap Icons
+
+### Backend (BaaS)
+
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Hosting (optional)
+
+---
+
+## 📁 Project Structure
+
+src/
+│
+├── components/
+│ ├── Auth.tsx # Login page (email, Google, GitHub)
+│ ├── AppLayout.tsx # Top navbar + sidebar + <Outlet />
+│ ├── Dashboard.tsx # Dashboard home page
+│ ├── Expenses.tsx # Expenses list (Firestore)
+│
+├── config/
+│ └── firebase-config.ts # Firebase initialization
+│
+├── App.tsx # Routing & auth guard
+├── main.tsx # App entry point
+└── index.css # Global styles
