@@ -149,5 +149,5 @@ service cloud.firestore {
 
 These rules ensure:
 
-Only authenticated users can access data
-Users can only read/write their own expenses
+- Only authenticated users can access data
+- Users can only read/write their own expenses
