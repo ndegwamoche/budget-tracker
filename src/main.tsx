@@ -7,8 +7,10 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./assets/css/main.css";
 
+document.documentElement.setAttribute("data-bs-theme", "dark");
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
-  </StrictMode>
+  </StrictMode>,
 );

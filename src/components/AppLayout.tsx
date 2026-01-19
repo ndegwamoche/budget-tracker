@@ -50,7 +50,7 @@ const AppLayout = ({ user }: { user: User }) => {
   return (
     <>
       {/* Top Navbar */}
-      <nav className="navbar navbar-light bg-light border-bottom py-0">
+      <nav className="navbar navbar-dark bg-dark border-bottom py-0">
         <div className="container-fluid px-3 position-relative">
           <div className="d-flex justify-content-between align-items-center w-100">
             <div className="d-flex align-items-center gap-2">
@@ -153,7 +153,7 @@ const AppLayout = ({ user }: { user: User }) => {
         <div className="row">
           {/* Desktop Sidebar */}
           <aside
-            className="col-md-3 col-lg-2 border-end bg-white p-0 d-none d-md-block"
+            className="col-md-3 col-lg-2 border-end bg-body p-0 d-none d-md-block"
             style={{ minHeight: "calc(100vh - 56px)" }}
           >
             <div className="p-3">
