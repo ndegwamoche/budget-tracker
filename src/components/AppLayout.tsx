@@ -135,14 +135,6 @@ const AppLayout = ({ user }: { user: User }) => {
                   </div>
                 </div>
               </div>
-
-              {/* Optional: tap outside to close (simple button) */}
-              <button
-                className="btn btn-light w-100 mt-2"
-                onClick={() => setMobileOpen(false)}
-              >
-                Close menu
-              </button>
             </div>
           </div>
         </div>
