@@ -469,7 +469,7 @@ export function Dashboard() {
                                 </div>
                               </div>
                             </div>
-                            <div className="fw-bold text-danger fs-5">
+                            <div className="fw-bold text-danger fs-6">
                               -{formatKES(exp.amount)}
                             </div>
                           </div>
