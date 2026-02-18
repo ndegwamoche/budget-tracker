@@ -430,6 +430,21 @@ export function Expenses() {
     () => items.reduce((sum, x) => sum + (x.amount || 0), 0),
     [items],
   );
+  const orderedItems = useMemo(
+    () =>
+      [...items].sort((a, b) => {
+        const createdDiff =
+          (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
+        if (createdDiff !== 0) return createdDiff;
+
+        const dateDiff =
+          (b.date?.toMillis?.() ?? 0) - (a.date?.toMillis?.() ?? 0);
+        if (dateDiff !== 0) return dateDiff;
+
+        return b.id.localeCompare(a.id);
+      }),
+    [items],
+  );
 
   return (
     <div className="mt-0">
@@ -629,7 +644,7 @@ export function Expenses() {
               {monthLabel(month)}
             </h5>
             <span className="text-muted small d-none d-md-inline">
-              {items.length} item(s)
+              {orderedItems.length} item(s)
             </span>
           </div>
 
@@ -641,7 +656,7 @@ export function Expenses() {
                 aria-label="Loading"
               />
             </div>
-          ) : items.length === 0 ? (
+          ) : orderedItems.length === 0 ? (
             <div className="text-center text-muted py-4">
               No expenses for this month.
             </div>
@@ -650,7 +665,7 @@ export function Expenses() {
               {/* MOBILE CARDS */}
               <div className="d-md-none">
                 <div className="list-group">
-                  {items.map((x) => (
+                  {orderedItems.map((x) => (
                     <div key={x.id} className="list-group-item py-3">
                       <div className="d-flex justify-content-between align-items-start gap-2">
                         <div className="flex-grow-1">
@@ -726,7 +741,7 @@ export function Expenses() {
                       </tr>
                     </thead>
                     <tbody>
-                      {items.map((x) => {
+                      {orderedItems.map((x) => {
                         const isPaid = x.isPaid ?? false; // treat missing field as false
                         const paidStyle = isPaid
                           ? "text-decoration-line-through text-muted"
