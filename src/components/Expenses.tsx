@@ -430,6 +430,15 @@ export function Expenses() {
     () => items.reduce((sum, x) => sum + (x.amount || 0), 0),
     [items],
   );
+  const paidTotal = useMemo(
+    () =>
+      items.reduce(
+        (sum, x) => sum + ((x.isPaid ?? false) ? (x.amount || 0) : 0),
+        0,
+      ),
+    [items],
+  );
+  const balanceAfterPaid = useMemo(() => total - paidTotal, [total, paidTotal]);
   const orderedItems = useMemo(
     () =>
       [...items].sort((a, b) => {
@@ -460,6 +469,9 @@ export function Expenses() {
         <div className="d-flex align-items-center gap-2">
           <span className="badge bg-primary fs-6">
             Total: {formatKES(total)}
+          </span>
+          <span className="badge bg-secondary fs-6">
+            Balance after paid: {formatKES(balanceAfterPaid)}
           </span>
         </div>
       </div>
@@ -724,6 +736,10 @@ export function Expenses() {
                   <span className="text-muted">Total</span>
                   <span className="fw-bold">{formatKES(total)}</span>
                 </div>
+                <div className="d-flex justify-content-between align-items-center mt-1">
+                  <span className="text-muted">Balance after paid</span>
+                  <span className="fw-semibold">{formatKES(balanceAfterPaid)}</span>
+                </div>
               </div>
 
               {/* DESKTOP TABLE */}
@@ -822,6 +838,15 @@ export function Expenses() {
                           Total
                         </td>
                         <td className="text-end fw-bold">{formatKES(total)}</td>
+                        <td />
+                      </tr>
+                      <tr>
+                        <td colSpan={4} className="text-end text-muted">
+                          Balance after paid
+                        </td>
+                        <td className="text-end fw-semibold">
+                          {formatKES(balanceAfterPaid)}
+                        </td>
                         <td />
                       </tr>
                     </tfoot>
