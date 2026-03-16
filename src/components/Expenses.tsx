@@ -108,6 +108,7 @@ export function Expenses() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
@@ -179,6 +180,7 @@ export function Expenses() {
   useEffect(() => {
     if (!user) {
       setItems([]);
+      setSelectedIds([]);
       setPageError("You are not logged in.");
       setLoading(false);
       return;
@@ -211,6 +213,9 @@ export function Expenses() {
         });
 
         setItems(rows);
+        setSelectedIds((current) =>
+          current.filter((id) => rows.some((row) => row.id === id)),
+        );
         setLoading(false);
       },
       (err) => {
@@ -407,6 +412,73 @@ export function Expenses() {
     }
   }
 
+  async function handleReplicateSelectedNextMonth() {
+    if (!user || selectedIds.length === 0) return;
+
+    const selectedExpenses = orderedItems.filter((item) =>
+      selectedIds.includes(item.id),
+    );
+    const totalAmount = selectedExpenses.reduce(
+      (sum, item) => sum + (item.amount || 0),
+      0,
+    );
+
+    const result = await Swal.fire({
+      title: "Replicate selected expenses?",
+      html: `
+      <div class="text-start">
+        <div><strong>Items:</strong> ${selectedExpenses.length}</div>
+        <div><strong>Total amount:</strong> ${formatKES(totalAmount)}</div>
+        <div><strong>Target:</strong> next month</div>
+      </div>
+    `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Replicate selected",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#0d6efd",
+      focusCancel: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await Promise.all(
+        selectedExpenses.map((exp) => {
+          const originalDate = exp.date.toDate();
+          const nextDate = addOneMonthSafe(originalDate);
+
+          return addDoc(collection(db, "expenses"), {
+            userId: user.uid,
+            amount: exp.amount,
+            categoryId: exp.categoryId,
+            note: exp.note ?? "",
+            date: Timestamp.fromDate(nextDate),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            isPaid: false,
+          });
+        }),
+      );
+
+      setSelectedIds([]);
+      Swal.fire({
+        icon: "success",
+        title: "Replicated",
+        text: `${selectedExpenses.length} expense(s) copied to next month.`,
+        timer: 1600,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to replicate selected expenses.",
+      });
+    }
+  }
+
   async function handleTogglePaid(id: string, newValue: boolean) {
     if (!user) return;
 
@@ -454,6 +526,20 @@ export function Expenses() {
       }),
     [items],
   );
+  const allSelected =
+    orderedItems.length > 0 && selectedIds.length === orderedItems.length;
+
+  function toggleSelect(id: string) {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((itemId) => itemId !== id)
+        : [...current, id],
+    );
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(allSelected ? [] : orderedItems.map((item) => item.id));
+  }
 
   return (
     <div className="mt-0">
@@ -655,9 +741,26 @@ export function Expenses() {
               <i className="bi bi-receipt me-2" />
               {monthLabel(month)}
             </h5>
-            <span className="text-muted small d-none d-md-inline">
-              {orderedItems.length} item(s)
-            </span>
+            <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+              <span className="text-muted small d-none d-md-inline">
+                {orderedItems.length} item(s)
+              </span>
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                onClick={toggleSelectAll}
+              >
+                {allSelected ? "Clear selection" : "Select all"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                onClick={handleReplicateSelectedNextMonth}
+                disabled={selectedIds.length === 0}
+              >
+                Replicate selected ({selectedIds.length})
+              </button>
+            </div>
           </div>
 
           {loading ? (
@@ -680,6 +783,15 @@ export function Expenses() {
                   {orderedItems.map((x) => (
                     <div key={x.id} className="list-group-item py-3">
                       <div className="d-flex justify-content-between align-items-start gap-2">
+                        <div className="form-check mt-1">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            checked={selectedIds.includes(x.id)}
+                            onChange={() => toggleSelect(x.id)}
+                            id={`replicate-mobile-${x.id}`}
+                          />
+                        </div>
                         <div className="flex-grow-1">
                           <div
                             className={`fw-semibold ${x.isPaid ? "text-decoration-line-through text-muted" : ""}`}
@@ -748,6 +860,7 @@ export function Expenses() {
                   <table className="table align-middle">
                     <thead>
                       <tr>
+                        <th className="text-center">Select</th>
                         <th className="text-center">Paid</th>
                         <th>Date</th>
                         <th>Category</th>
@@ -765,6 +878,15 @@ export function Expenses() {
 
                         return (
                           <tr key={x.id}>
+                            <td className="text-center">
+                              <input
+                                type="checkbox"
+                                className="form-check-input"
+                                checked={selectedIds.includes(x.id)}
+                                onChange={() => toggleSelect(x.id)}
+                                title="Select for bulk replication"
+                              />
+                            </td>
                             <td className="text-center">
                               <input
                                 type="checkbox"
@@ -834,14 +956,14 @@ export function Expenses() {
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td colSpan={4} className="text-end text-muted">
+                        <td colSpan={5} className="text-end text-muted">
                           Total
                         </td>
                         <td className="text-end fw-bold">{formatKES(total)}</td>
                         <td />
                       </tr>
                       <tr>
-                        <td colSpan={4} className="text-end text-muted">
+                        <td colSpan={5} className="text-end text-muted">
                           Balance after paid
                         </td>
                         <td className="text-end fw-semibold">
