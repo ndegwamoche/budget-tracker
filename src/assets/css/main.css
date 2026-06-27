@@ -1,42 +1,183 @@
-/* Add this to your global CSS or a styled component */
+.app-topbar {
+  background:
+    linear-gradient(135deg, rgba(10, 37, 64, 0.96), rgba(21, 63, 102, 0.92)),
+    #0c2237;
+  backdrop-filter: blur(12px);
+}
 
 .app-logo {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  gap: 0.75rem;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   font-weight: 700;
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
 .app-logo:hover {
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 
 .app-logo i {
-  font-size: 38px;
-  background: linear-gradient(
-    135deg,
-    #6366f1 0%,
-    #8b5cf6 50%,
-    #ec4899 100%
-  ); /* Modern purple-pink gradient */
+  font-size: 2.1rem;
+  background: linear-gradient(135deg, #7dd3fc 0%, #facc15 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3)); /* Soft glow */
-  transition: all 0.4s ease;
+  filter: drop-shadow(0 4px 10px rgba(125, 211, 252, 0.22));
 }
 
-.app-logo:hover i {
-  transform: rotate(360deg); /* Fun subtle spin on hover */
-  filter: drop-shadow(0 6px 12px rgba(99, 102, 241, 0.4));
+.app-title {
+  color: #f8fafc;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.app-name {
-  font-size: 28px;
-  background: linear-gradient(135deg, #4c1d95, #ec4899);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(14, 116, 144, 0.1), transparent 34%),
+    linear-gradient(180deg, #f6fbff 0%, #eef4f8 100%);
+  min-height: calc(100vh - 60px);
+}
+
+.app-sidebar-column {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(240, 247, 252, 0.98));
+}
+
+.app-sidebar-sticky {
+  position: sticky;
+  top: 1rem;
+}
+
+.app-sidebar-card {
+  border: 0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.app-sidebar-list {
+  gap: 0;
+}
+
+.app-sidebar-link {
+  border: 0;
+  border-radius: 0;
+  min-height: 5.25rem;
+  padding: 1rem 1.1rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.app-sidebar-link:hover {
+  background-color: #edf7ff;
+  color: #0f4c81;
+  transform: translateX(2px);
+}
+
+.app-sidebar-link.active {
+  background: linear-gradient(135deg, #0f6ea6, #164e7a);
+  color: #fff;
+}
+
+.app-sidebar-icon-wrap {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 110, 166, 0.12);
+  flex-shrink: 0;
+}
+
+.app-sidebar-link.active .app-sidebar-icon-wrap {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.app-sidebar-icon {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.app-sidebar-label {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.app-main-content {
+  padding-bottom: 6.5rem;
+}
+
+.app-mobile-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1030;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.7rem 0.65rem calc(0.7rem + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, rgba(7, 23, 39, 0.94), rgba(14, 39, 64, 0.98));
+  box-shadow: 0 -12px 30px rgba(6, 23, 38, 0.22);
+}
+
+.app-mobile-link {
+  min-width: 0;
+  border-radius: 1rem;
+  color: rgba(232, 241, 248, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 4.35rem;
+  padding: 0.45rem 0.25rem;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.app-mobile-link:hover,
+.app-mobile-link.active {
+  background: rgba(125, 211, 252, 0.18);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.app-mobile-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.app-mobile-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .app-main-content {
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .app-topbar .btn-outline-danger {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+  }
+
+  .app-title {
+    font-size: 0.92rem;
+  }
 }
