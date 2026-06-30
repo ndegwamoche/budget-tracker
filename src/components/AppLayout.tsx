@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../config/firebase-config";
@@ -13,11 +12,6 @@ const links = [
 ] as const;
 
 const AppLayout = ({ user }: { user: User }) => {
-  const location = useLocation();
-
-  useEffect(() => {
-  }, [location.pathname]);
-
   const handleLogout = async () => {
     await signOut(auth);
   };
